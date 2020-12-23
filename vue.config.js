@@ -1,4 +1,4 @@
 module.exports = {
   publicPath: '/morse-manabu/',
-  outputDir: 'pages'
+  outputDir: 'docs'
 }
