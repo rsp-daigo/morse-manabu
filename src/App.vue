@@ -27,6 +27,10 @@
 <script>
 import morse_list from './components/morse_list';
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const MORSE_SPEED = 100;
+
 export default {
   // name: 'App',
   components: {},
@@ -65,6 +69,9 @@ export default {
       numberItems: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       questionList: [],
       currentQuestion: null,
+      // audioCtx: null,
+      oscillator: null,
+      audioActive: true,
     };
   },
 
@@ -80,7 +87,6 @@ export default {
         key,
         value,
       }));
-      console.log(this.questionList);
     },
 
     showNextQuestion: function() {
@@ -108,23 +114,45 @@ export default {
       this.morseText = morseItem.value.morseText;
     },
 
-    playMorseSignal: function(morseSignal) {
-      this.playAudio(morseSignal);
+    playMorseSignal: async function(morseSignal) {
+      const ch = Array.from(morseSignal);
+
+      this.audioActive = true;
+      while (this.audioActive) {
+        for (const item of ch) {
+          if (!this.audioActive) {
+            break;
+          }
+
+          let playTime = 3;
+          if (item === '・') {
+            playTime = 1;
+          }
+          playTime *= MORSE_SPEED;
+          this.playAudio(playTime);
+
+          const interval = 1 * MORSE_SPEED;
+          await sleep(playTime + interval);
+        }
+        await sleep(1000);
+      }
+      this.oscillator.stop(0);
     },
 
-    playAudio: function() {
+    playAudio: function(playTime) {
       try {
         const audioCtx = new (window.AudioContext ||
           window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 440;
+        this.oscillator = audioCtx.createOscillator();
+        this.oscillator.type = 'sine';
+        this.oscillator.frequency.value = 440;
         const gain = audioCtx.createGain();
-        oscillator.connect(gain);
+        this.oscillator.connect(gain);
         gain.gain.value = 1;
         gain.connect(audioCtx.destination);
 
-        oscillator.start();
+        this.oscillator.start();
+        this.oscillator.stop(playTime / 1000);
       } catch (e) {
         alert(e);
       }
@@ -133,12 +161,12 @@ export default {
     resultClick: function(anser) {
       // はずれ
       if (anser !== this.currentQuestion.key) {
-        console.log('NG');
         return;
       }
 
       // 正解
-      console.log('OK');
+      this.oscillator.stop(0);
+      this.audioActive = false;
       this.showNextQuestion();
     },
   },

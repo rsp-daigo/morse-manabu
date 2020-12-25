@@ -3,6 +3,6 @@ export default Object.freeze({
     morseText: '・－',
   },
   B: {
-    morseText: '－・・',
+    morseText: '－・・・',
   },
 });
