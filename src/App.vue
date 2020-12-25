@@ -86,7 +86,7 @@ export default {
     showNextQuestion: function() {
       this.currentQuestion = this.getNextQuestion();
       this.showQuestion(this.currentQuestion);
-      this.playAudio();
+      this.playMorseSignal(this.currentQuestion.value.morseText);
     },
 
     getNextQuestion: function() {
@@ -108,9 +108,14 @@ export default {
       this.morseText = morseItem.value.morseText;
     },
 
+    playMorseSignal: function(morseSignal) {
+      this.playAudio(morseSignal);
+    },
+
     playAudio: function() {
       try {
-        const audioCtx = new AudioContext();
+        const audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         oscillator.type = 'sine';
         oscillator.frequency.value = 440;
