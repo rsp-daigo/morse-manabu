@@ -109,16 +109,20 @@ export default {
     },
 
     playAudio: function() {
-      const audioCtx = new AudioContext();
-      const oscillator = audioCtx.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = 440;
-      const gain = audioCtx.createGain();
-      oscillator.connect(gain);
-      gain.gain.value = 1;
-      gain.connect(audioCtx.destination);
+      try {
+        const audioCtx = new AudioContext();
+        const oscillator = audioCtx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 440;
+        const gain = audioCtx.createGain();
+        oscillator.connect(gain);
+        gain.gain.value = 1;
+        gain.connect(audioCtx.destination);
 
-      oscillator.start();
+        oscillator.start();
+      } catch (e) {
+        alert(e);
+      }
     },
 
     resultClick: function(anser) {
