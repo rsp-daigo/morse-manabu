@@ -7,8 +7,8 @@
       ></span>
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
-
     <br />
+
     <div class="morse_text_box">
       <span>{{ morseText }}</span>
     </div>
@@ -33,8 +33,7 @@
     </button>
     <br />
     <br />
-    <button @click="startClick" class="ope_btn">Start</button>
-    <button @click="stopClick" class="ope_btn">Stop</button>
+    <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
   </div>
 </template>
 
@@ -85,21 +84,29 @@ export default {
       currentQuestion: null,
       aurdioRunnable: false,
       audioReset: false,
+      opeBtnText: 'Start',
     };
   },
 
   methods: {
-    startClick: function() {
+    startStopClick: function() {
+      // 開始状態の場合は停止
+      if (this.aurdioRunnable) {
+        this.stopAudio();
+        this.morseText = '';
+        this.opeBtnText = 'Start';
+        this.aurdioRunnable = false;
+        return;
+      }
+
+      // 停止状態の場合は開始
       this.initQuestion();
       this.showNextQuestion();
+      this.opeBtnText = 'Stop';
       this.aurdioRunnable = true;
     },
 
-    stopClick: function() {
-      this.stopAudio();
-      this.morseText = '';
-      this.aurdioRunnable = false;
-    },
+    stopClick: function() {},
 
     initQuestion: function() {
       // モールスのリストを配列化して、未出題データとする
@@ -148,7 +155,6 @@ export default {
       while (!this.audioReset) {
         // ばらした要素を再生する
         for (const item of ch) {
-          console.log('this.audioReset=${this.audioReset}');
           if (this.audioReset) {
             break;
           }
@@ -196,22 +202,23 @@ export default {
 
     stopAudio: function() {
       this.audioReset = true;
-      console.log('stopAudio this.audioReset=${this.audioReset}');
     },
 
     resultClick: function(anser) {
       if (this.morseText == '') {
         return;
       }
+      this.$toasted.clear();
 
       // はずれ
       if (anser !== this.currentQuestion.key) {
-        this.$toasted.show('はずれ');
+        this.$toasted.info('はずれ');
+
         return;
       }
 
       // 正解
-      this.$toasted.show('正解');
+      this.$toasted.success('正解');
       this.stopAudio();
       this.showNextQuestion();
     },
