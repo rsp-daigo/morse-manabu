@@ -12,7 +12,7 @@
     <div class="morse_text_box">
       <span>{{ morseText }}</span>
     </div>
-    <br />
+
     <button
       v-for="item in alphabetItems"
       v-bind:key="item"
