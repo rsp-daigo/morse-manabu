@@ -219,6 +219,7 @@ export default {
      * オーディオを再生する
      */
     playAudio: function(playTime) {
+      alert(playTime);
       try {
         const audioCtx = new (window.AudioContext ||
           window.webkitAudioContext)();
