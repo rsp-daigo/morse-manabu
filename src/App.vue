@@ -23,6 +23,7 @@
     </button>
     <br />
     <br />
+
     <button
       v-for="item in numberItems"
       v-bind:key="item"
@@ -33,7 +34,9 @@
     </button>
     <br />
     <br />
+
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
+
     <result-modal ref="resultModal" @onResultModalClose="onResultModalClose" />
   </div>
 </template>
@@ -42,12 +45,13 @@
 import morse_list from './components/morse_list';
 import ResultModal from './components/ResultModal';
 
+// Sleepメソッド化
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+// 再生速度（現在は固定）
 const MORSE_SPEED = 100;
 
 export default {
-  // name: 'App',
   components: {
     ResultModal,
   },
@@ -93,6 +97,9 @@ export default {
   },
 
   methods: {
+    /**
+     * 再生の開始・停止
+     */
     startStopClick: function() {
       // 開始状態の場合は停止
       if (this.aurdioRunnable) {
@@ -110,8 +117,9 @@ export default {
       this.aurdioRunnable = true;
     },
 
-    stopClick: function() {},
-
+    /**
+     * 問題の初期化
+     */
     initQuestion: function() {
       // モールスのリストを配列化して、未出題データとする
       this.questionList = Object.entries(morse_list).map(([key, value]) => ({
@@ -120,14 +128,20 @@ export default {
       }));
     },
 
+    /**
+     * 次の問題を表示する
+     */
     showNextQuestion: function() {
       this.currentQuestion = this.getNextQuestion();
       this.showQuestion(this.currentQuestion);
       this.playMorseSignal(this.currentQuestion.value.morseText);
     },
 
+    /**
+     * 次の問題を取得する
+     */
     getNextQuestion: function() {
-      // 未出題リストから今回の出題を取得
+      // 未出題リストから今回の出題をランダムに取得
       let maxIndex = this.questionList.length;
       if (maxIndex === 0) {
         this.initQuestion();
@@ -135,38 +149,51 @@ export default {
       }
       const index = Math.floor(Math.random() * Math.floor(maxIndex));
 
+      // 次の問題
       const ret = this.questionList[index];
+
+      // 出題済みのものを未出題リストから除去
       this.questionList.splice(index);
 
       return ret;
     },
 
+    /**
+     * 問題を表示する
+     */
     showQuestion: function(morseItem) {
       this.morseText = morseItem.value.morseText;
     },
 
+    /**
+     * 問題を再生する
+     */
     playMorseSignal: async function(morseSignal) {
-      const ch = Array.from(morseSignal);
-
       // 前回再生中のものが停止されるのを待つ
       while (this.audioReset) {
         await sleep(100);
       }
-
       this.audioReset = false;
+
+      // 点と線でばらす
+      const ch = Array.from(morseSignal);
 
       // 停止されるまで同じモールスを再生し続ける
       while (!this.audioReset) {
         // ばらした要素を再生する
         for (const item of ch) {
+          // 停止要求がある場合は、終了
           if (this.audioReset) {
             break;
           }
 
-          let playTime = 3;
-          if (item === '・') {
-            playTime = 1;
+          // 線の場合は点の3倍
+          let playTime = 1;
+          if (item === '－') {
+            playTime *= 3;
           }
+
+          // 再生速度の設定
           playTime *= MORSE_SPEED;
 
           // 再生
@@ -185,6 +212,9 @@ export default {
       this.audioReset = false;
     },
 
+    /**
+     * オーディオを再生する
+     */
     playAudio: function(playTime) {
       try {
         const audioCtx = new (window.AudioContext ||
@@ -204,19 +234,23 @@ export default {
       }
     },
 
+    /**
+     * オーディオを停止する
+     */
     stopAudio: function() {
       this.audioReset = true;
     },
 
+    /**
+     * 解答クリック
+     */
     resultClick: function(anser) {
       if (this.morseText == '') {
         return;
       }
-      this.$toasted.clear();
 
       // はずれ
       if (anser !== this.currentQuestion.key) {
-        // this.$toasted.info('はずれ');
         this.$refs.resultModal.open(this.currentQuestion);
         return;
       }
@@ -227,6 +261,9 @@ export default {
       this.showNextQuestion();
     },
 
+    /**
+     * 不正解時のモーダルクローズ
+     */
     onResultModalClose: function() {
       this.stopAudio();
       this.showNextQuestion();
