@@ -51,6 +51,9 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 // 再生速度（現在は固定）
 const MORSE_SPEED = 100;
 
+// 長点
+const MORSE_LONG = '－';
+
 export default {
   components: {
     ResultModal,
@@ -187,9 +190,9 @@ export default {
             break;
           }
 
-          // 線の場合は点の3倍
+          // 長点は短点の3倍
           let playTime = 1;
-          if (item === '－') {
+          if (item === MORSE_LONG) {
             playTime *= 3;
           }
 
