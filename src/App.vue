@@ -6,8 +6,7 @@
         v-bind:class="{ ring_animation: aurdioRunnable }"
       ></span>
     </div>
-    ３アマのための<br />
-    モールス信号<br />
+    <img src="@/assets/image/title.png" />
 
     <br />
     <div class="morse_text_box">
