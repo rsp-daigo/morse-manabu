@@ -55,6 +55,9 @@ const MORSE_SPEED = 100;
 // 長点
 const MORSE_LONG = '－';
 
+let audioCtx = null;
+let oscillator = null;
+
 export default {
   components: {
     ResultModal,
@@ -192,6 +195,8 @@ export default {
             break;
           }
 
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          oscillator = audioCtx.createOscillator();
           // 長点は短点の3倍
           let playTime = 1;
           if (item === MORSE_LONG) {
@@ -223,9 +228,13 @@ export default {
     playAudio: function(playTime) {
       this.debug += ' ' + playTime;
       try {
-        const audioCtx = new (window.AudioContext ||
-          window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
+        if (audioCtx == null) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (oscillator == null) {
+          oscillator = audioCtx.createOscillator();
+        }
+
         oscillator.type = 'sine';
         oscillator.frequency.value = 440;
         const gain = audioCtx.createGain();
