@@ -7,6 +7,7 @@
       ></span>
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
+    {{ debug }}
     <br />
 
     <div class="morse_text_box">
@@ -96,6 +97,7 @@ export default {
       aurdioRunnable: false,
       audioReset: false,
       opeBtnText: 'Start',
+      debug: '',
     };
   },
 
@@ -219,7 +221,7 @@ export default {
      * オーディオを再生する
      */
     playAudio: function(playTime) {
-      alert(playTime);
+      this.debug += ' ' + playTime;
       try {
         const audioCtx = new (window.AudioContext ||
           window.webkitAudioContext)();
