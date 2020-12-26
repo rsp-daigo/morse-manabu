@@ -34,11 +34,13 @@
     <br />
     <br />
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
+    <result-modal ref="resultModal" />
   </div>
 </template>
 
 <script>
 import morse_list from './components/morse_list';
+import ResultModal from './components/ResultModal';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -46,7 +48,9 @@ const MORSE_SPEED = 100;
 
 export default {
   // name: 'App',
-  components: {},
+  components: {
+    ResultModal,
+  },
 
   data: function() {
     return {
@@ -212,8 +216,8 @@ export default {
 
       // はずれ
       if (anser !== this.currentQuestion.key) {
-        this.$toasted.info('はずれ');
-
+        // this.$toasted.info('はずれ');
+        this.$refs.resultModal.open(this.currentQuestion);
         return;
       }
 

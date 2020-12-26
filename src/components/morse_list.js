@@ -35,10 +35,10 @@ export default Object.freeze({
   L: {
     morseText: '・－・・',
   },
-  N: {
+  M: {
     morseText: '－－',
   },
-  M: {
+  N: {
     morseText: '－・',
   },
   O: {
