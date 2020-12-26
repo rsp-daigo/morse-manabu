@@ -3,6 +3,7 @@
     モールス信号のお勉強<br />
 
     <button @click="startClick">Start</button>
+    <button @click="stopClick">Stop</button>
     <br />
     <span>{{ morseText }}</span>
     <br />
@@ -70,8 +71,8 @@ export default {
       questionList: [],
       currentQuestion: null,
       // audioCtx: null,
-      oscillator: null,
-      audioActive: true,
+      // oscillator: null,
+      aurdioRunnable: true,
     };
   },
 
@@ -79,6 +80,10 @@ export default {
     startClick: function() {
       this.initQuestion();
       this.showNextQuestion();
+    },
+
+    stopClick: function() {
+      this.stopAudio();
     },
 
     initQuestion: function() {
@@ -117,10 +122,19 @@ export default {
     playMorseSignal: async function(morseSignal) {
       const ch = Array.from(morseSignal);
 
-      this.audioActive = true;
-      while (this.audioActive) {
+      // 前回再生中のものが停止されるのを待つ
+      while (!this.aurdioRunnable) {
+        await sleep(100);
+      }
+
+      this.aurdioRunnable = true;
+
+      // 停止されるまで同じモールスを再生し続ける
+      while (this.aurdioRunnable) {
+        // ばらした要素を再生する
         for (const item of ch) {
-          if (!this.audioActive) {
+          console.log('this.aurdioRunnable=${this.aurdioRunnable}');
+          if (!this.aurdioRunnable) {
             break;
           }
 
@@ -129,33 +143,45 @@ export default {
             playTime = 1;
           }
           playTime *= MORSE_SPEED;
+
+          // 再生
           this.playAudio(playTime);
 
+          // 要素間のインターバル
           const interval = 1 * MORSE_SPEED;
           await sleep(playTime + interval);
         }
+
+        // １セット再生し終えた後のインターバル
         await sleep(1000);
       }
-      this.oscillator.stop(0);
+
+      // 次の再生向けに再生可能状態にしておく
+      this.aurdioRunnable = true;
     },
 
     playAudio: function(playTime) {
       try {
         const audioCtx = new (window.AudioContext ||
           window.webkitAudioContext)();
-        this.oscillator = audioCtx.createOscillator();
-        this.oscillator.type = 'sine';
-        this.oscillator.frequency.value = 440;
+        const oscillator = audioCtx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 440;
         const gain = audioCtx.createGain();
-        this.oscillator.connect(gain);
+        oscillator.connect(gain);
         gain.gain.value = 1;
         gain.connect(audioCtx.destination);
 
-        this.oscillator.start();
-        this.oscillator.stop(playTime / 1000);
+        oscillator.start();
+        oscillator.stop(playTime / 1000);
       } catch (e) {
         alert(e);
       }
+    },
+
+    stopAudio: function() {
+      this.aurdioRunnable = false;
+      console.log('stopAudio this.aurdioRunnable=${this.aurdioRunnable}');
     },
 
     resultClick: function(anser) {
@@ -165,8 +191,7 @@ export default {
       }
 
       // 正解
-      this.oscillator.stop(0);
-      this.audioActive = false;
+      this.stopAudio();
       this.showNextQuestion();
     },
   },
