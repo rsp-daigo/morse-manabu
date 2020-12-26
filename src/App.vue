@@ -89,6 +89,7 @@ export default {
 
     stopClick: function() {
       this.stopAudio();
+      this.morseText = '';
     },
 
     initQuestion: function() {
@@ -190,6 +191,10 @@ export default {
     },
 
     resultClick: function(anser) {
+      if (this.morseText == '') {
+        return;
+      }
+
       // はずれ
       if (anser !== this.currentQuestion.key) {
         this.$toasted.show('はずれ');
