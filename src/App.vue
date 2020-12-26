@@ -6,7 +6,7 @@
         v-bind:class="{ ring_animation: aurdioRunnable }"
       ></span>
     </div>
-    <img src="@/assets/image/title.png" />
+    <img src="@/assets/image/title.png" class="title_img" />
 
     <br />
     <div class="morse_text_box">

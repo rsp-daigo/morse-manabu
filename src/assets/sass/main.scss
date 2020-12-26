@@ -9,6 +9,9 @@ button {
   cursor: pointer;
 }
 
+.title_img {
+  z-index: 999;
+}
 .ope_btn {
   width:80px;
   margin: 3px;
@@ -50,6 +53,7 @@ button {
   border: 0px solid #ccc;
   border-radius: 100px;
   background: #6badff;
+  z-index: -1;
 }
 
 .hamon .ring {
