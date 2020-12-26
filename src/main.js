@@ -2,6 +2,8 @@ import Vue from 'vue';
 import App from './App.vue';
 import Toasted from 'vue-toasted';
 
+require('@/assets/sass/main.scss');
+
 const toastOptions = {
   position: 'top-center',
   duration: 500,

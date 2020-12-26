@@ -1,27 +1,34 @@
 <template>
-  <div>
+  <div class="container_main">
     モールス信号のお勉強<br />
 
-    <button @click="startClick">Start</button>
-    <button @click="stopClick">Stop</button>
     <br />
-    <span>{{ morseText }}</span>
+    <div class="morse_text_box">
+      <span>{{ morseText }}</span>
+    </div>
     <br />
     <button
       v-for="item in alphabetItems"
       v-bind:key="item"
       @click="resultClick(item)"
+      class="result_btn"
     >
       {{ item }}
     </button>
+    <br />
     <br />
     <button
       v-for="item in numberItems"
       v-bind:key="item"
       @click="resultClick(item)"
+      class="result_btn"
     >
       {{ item }}
     </button>
+    <br />
+    <br />
+    <button @click="startClick" class="ope_btn">Start</button>
+    <button @click="stopClick" class="ope_btn">Stop</button>
   </div>
 </template>
 
