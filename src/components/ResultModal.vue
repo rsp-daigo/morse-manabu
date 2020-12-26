@@ -40,6 +40,7 @@ export default {
       this.isOpen = true;
     },
     close: function() {
+      this.$emit('onResultModalClose');
       this.isOpen = false;
     },
   },

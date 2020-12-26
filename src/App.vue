@@ -34,7 +34,7 @@
     <br />
     <br />
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
-    <result-modal ref="resultModal" />
+    <result-modal ref="resultModal" @onResultModalClose="onResultModalClose" />
   </div>
 </template>
 
@@ -223,6 +223,11 @@ export default {
 
       // 正解
       this.$toasted.success('正解');
+      this.stopAudio();
+      this.showNextQuestion();
+    },
+
+    onResultModalClose: function() {
       this.stopAudio();
       this.showNextQuestion();
     },
