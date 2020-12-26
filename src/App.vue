@@ -1,6 +1,13 @@
 <template>
   <div class="container_main">
-    モールス信号のお勉強<br />
+    <div class="hamon" href="#">
+      <span
+        class="ring"
+        v-bind:class="{ ring_animation: aurdioRunnable }"
+      ></span>
+    </div>
+    ３アマのための<br />
+    モールス信号<br />
 
     <br />
     <div class="morse_text_box">
@@ -77,7 +84,8 @@ export default {
       numberItems: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       questionList: [],
       currentQuestion: null,
-      aurdioRunnable: true,
+      aurdioRunnable: false,
+      audioReset: false,
     };
   },
 
@@ -85,11 +93,13 @@ export default {
     startClick: function() {
       this.initQuestion();
       this.showNextQuestion();
+      this.aurdioRunnable = true;
     },
 
     stopClick: function() {
       this.stopAudio();
       this.morseText = '';
+      this.aurdioRunnable = false;
     },
 
     initQuestion: function() {
@@ -129,18 +139,18 @@ export default {
       const ch = Array.from(morseSignal);
 
       // 前回再生中のものが停止されるのを待つ
-      while (!this.aurdioRunnable) {
+      while (this.audioReset) {
         await sleep(100);
       }
 
-      this.aurdioRunnable = true;
+      this.audioReset = false;
 
       // 停止されるまで同じモールスを再生し続ける
-      while (this.aurdioRunnable) {
+      while (!this.audioReset) {
         // ばらした要素を再生する
         for (const item of ch) {
-          console.log('this.aurdioRunnable=${this.aurdioRunnable}');
-          if (!this.aurdioRunnable) {
+          console.log('this.audioReset=${this.audioReset}');
+          if (this.audioReset) {
             break;
           }
 
@@ -163,7 +173,7 @@ export default {
       }
 
       // 次の再生向けに再生可能状態にしておく
-      this.aurdioRunnable = true;
+      this.audioReset = false;
     },
 
     playAudio: function(playTime) {
@@ -186,8 +196,8 @@ export default {
     },
 
     stopAudio: function() {
-      this.aurdioRunnable = false;
-      console.log('stopAudio this.aurdioRunnable=${this.aurdioRunnable}');
+      this.audioReset = true;
+      console.log('stopAudio this.audioReset=${this.audioReset}');
     },
 
     resultClick: function(anser) {
