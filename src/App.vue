@@ -70,8 +70,6 @@ export default {
       numberItems: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       questionList: [],
       currentQuestion: null,
-      // audioCtx: null,
-      // oscillator: null,
       aurdioRunnable: true,
     };
   },
@@ -187,10 +185,12 @@ export default {
     resultClick: function(anser) {
       // はずれ
       if (anser !== this.currentQuestion.key) {
+        this.$toasted.show('はずれ');
         return;
       }
 
       // 正解
+      this.$toasted.show('正解');
       this.stopAudio();
       this.showNextQuestion();
     },
