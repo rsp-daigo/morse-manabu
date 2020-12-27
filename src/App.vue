@@ -7,7 +7,7 @@
       ></span>
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
-    {{ debug }}
+    <br />{{ debug }}
     <br />
 
     <div class="morse_text_box">
@@ -195,8 +195,6 @@ export default {
             break;
           }
 
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          oscillator = audioCtx.createOscillator();
           // 長点は短点の3倍
           let playTime = 1;
           if (item === MORSE_LONG) {
@@ -206,7 +204,6 @@ export default {
           // 再生速度の設定
           playTime *= MORSE_SPEED;
 
-          // 再生
           this.playAudio(playTime);
 
           // 要素間のインターバル
@@ -226,14 +223,10 @@ export default {
      * オーディオを再生する
      */
     playAudio: function(playTime) {
-      this.debug += ' ' + playTime;
+      this.debug = 'e' + playTime;
       try {
-        if (audioCtx == null) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (oscillator == null) {
-          oscillator = audioCtx.createOscillator();
-        }
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        oscillator = audioCtx.createOscillator();
 
         oscillator.type = 'sine';
         oscillator.frequency.value = 440;
