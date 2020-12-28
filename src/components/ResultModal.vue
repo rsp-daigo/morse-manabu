@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="el-modal" v-show="isOpen" @click="close">
-      <div class="el-modal__holder">
+    <div class="modal" v-show="isOpen" @click="close">
+      <div class="modal__holder">
         <h2>不正解</h2>
         <hr />
         <div class="morse_text_box">

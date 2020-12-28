@@ -83,11 +83,10 @@ button {
   100% { transform: scale(1.5, 1.5); opacity: 1; }
 }
 
-.el-modal {
+.modal {
   position: absolute;
   top: 50px;
   left: 0;
-  visibility: hidden;
 
   &__holder {
     position: fixed;
@@ -95,9 +94,5 @@ button {
     background-color: white;
     width: 100%;
     height: 100%;
-  }
-
-  &[aria-hidden=false] {
-    visibility: visible;
   }
 }
