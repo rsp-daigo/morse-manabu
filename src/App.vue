@@ -7,7 +7,7 @@
       ></span>
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
-    <br />{{ debug }}
+    <br />
     <br />
 
     <div class="morse_text_box">
@@ -55,8 +55,8 @@ const MORSE_SPEED = 100;
 // 長点
 const MORSE_LONG = '－';
 
-let audioCtx = null;
-let oscillator = null;
+// let audioCtx = null;
+// let oscillator = null;
 
 export default {
   components: {
@@ -100,7 +100,6 @@ export default {
       aurdioRunnable: false,
       audioReset: false,
       opeBtnText: 'Start',
-      debug: '',
     };
   },
 
@@ -114,7 +113,6 @@ export default {
         this.stopAudio();
         this.morseText = '';
         this.opeBtnText = 'Start';
-        this.aurdioRunnable = false;
         return;
       }
 
@@ -122,7 +120,40 @@ export default {
       this.initQuestion();
       this.showNextQuestion();
       this.opeBtnText = 'Stop';
-      this.aurdioRunnable = true;
+    },
+
+    /**
+     * 解答クリック
+     */
+    resultClick: function(anser) {
+      if (!this.aurdioRunnable) {
+        return;
+      }
+
+      // 停止処理中の場合は、クリック無効
+      if (this.audioReset) {
+        return;
+      }
+
+      // はずれ
+      if (anser !== this.currentQuestion.key) {
+        this.$refs.resultModal.open(this.currentQuestion);
+        return;
+      }
+
+      // 正解
+      this.$toasted.success('正解');
+      this.stopAudio();
+      this.showNextQuestion();
+    },
+
+    /**
+     * 不正解時のモーダルクローズ
+     */
+    onResultModalClose: function() {
+      console.log('onResultModalClose');
+      this.stopAudio();
+      this.showNextQuestion();
     },
 
     /**
@@ -156,12 +187,13 @@ export default {
         maxIndex = this.questionList.length;
       }
       const index = Math.floor(Math.random() * Math.floor(maxIndex));
+      console.log(`len=${this.questionList.length} index=${index}`);
 
       // 次の問題
       const ret = this.questionList[index];
 
       // 出題済みのものを未出題リストから除去
-      this.questionList.splice(index);
+      this.questionList.splice(index, 1);
 
       return ret;
     },
@@ -176,67 +208,85 @@ export default {
     /**
      * 問題を再生する
      */
-    playMorseSignal: async function(morseSignal) {
+    playMorseSignal: async function(morseText) {
       // 前回再生中のものが停止されるのを待つ
       while (this.audioReset) {
         await sleep(100);
       }
-      this.audioReset = false;
 
-      // 点と線でばらす
-      const ch = Array.from(morseSignal);
-
-      // 停止されるまで同じモールスを再生し続ける
-      while (!this.audioReset) {
-        // ばらした要素を再生する
-        for (const item of ch) {
-          // 停止要求がある場合は、終了
-          if (this.audioReset) {
-            break;
-          }
-
-          // 長点は短点の3倍
-          let playTime = 1;
-          if (item === MORSE_LONG) {
-            playTime *= 3;
-          }
-
-          // 再生速度の設定
-          playTime *= MORSE_SPEED;
-
-          this.playAudio(playTime);
-
-          // 要素間のインターバル
-          const interval = 1 * MORSE_SPEED;
-          await sleep(playTime + interval);
+      // 点と線でばらしてループ
+      const ch = Array.from(morseText);
+      const gainList = [];
+      for (const item of ch) {
+        // 長点は短点の3倍
+        let playTime = 1;
+        if (item === MORSE_LONG) {
+          playTime = 3;
         }
 
-        // １セット再生し終えた後のインターバル
-        await sleep(1000);
+        // 再生速度の設定
+        playTime *= MORSE_SPEED;
+
+        gainList.push({ playTime, vol: 0.9 });
+
+        // 要素間のインターバル
+        const interval = 1 * MORSE_SPEED;
+        gainList.push({ playTime: interval, vol: 0 });
       }
+      // １セット再生し終えた後のインターバル
+      gainList.push({ playTime: 1000, vol: 0 });
+      this.playAudio(gainList);
 
       // 次の再生向けに再生可能状態にしておく
-      this.audioReset = false;
+      // this.audioReset = false;
     },
 
     /**
      * オーディオを再生する
      */
-    playAudio: function(playTime) {
-      this.debug = 'e' + playTime;
+    playAudio: async function(gainList) {
       try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        oscillator = audioCtx.createOscillator();
+        if (oscillator) {
+          oscillator.stop();
+        }
 
+        this.aurdioRunnable = true;
+
+        const audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
         oscillator.type = 'sine';
         oscillator.frequency.value = 440;
         const gain = audioCtx.createGain();
-        oscillator.connect(gain);
-        gain.gain.value = 1;
         gain.connect(audioCtx.destination);
 
         oscillator.start();
-        oscillator.stop(playTime / 1000);
+        // oscillator.stop(playTime / 1000);
+        oscillator.connect(gain);
+
+        // 指定要求があったら抜ける
+        while (!this.audioReset) {
+          let totalPlayTime = 0;
+          const baseTime = audioCtx.currentTime;
+          for (const gainItem of gainList) {
+            // 停止要求がある場合は終了
+            if (this.audioReset) {
+              break;
+            }
+
+            gain.gain.setValueAtTime(gainItem.vol, baseTime + totalPlayTime);
+
+            totalPlayTime += gainItem.playTime / 1000;
+          }
+
+          // 停止要求をチェックするため再生時間分Slepp
+          await sleep(totalPlayTime * 1000);
+        }
+
+        oscillator.stop();
+
+        this.audioReset = false;
+        this.aurdioRunnable = false;
       } catch (e) {
         alert(e);
       }
@@ -246,35 +296,8 @@ export default {
      * オーディオを停止する
      */
     stopAudio: function() {
+      console.log('stopAudio');
       this.audioReset = true;
-    },
-
-    /**
-     * 解答クリック
-     */
-    resultClick: function(anser) {
-      if (this.morseText == '') {
-        return;
-      }
-
-      // はずれ
-      if (anser !== this.currentQuestion.key) {
-        this.$refs.resultModal.open(this.currentQuestion);
-        return;
-      }
-
-      // 正解
-      this.$toasted.success('正解');
-      this.stopAudio();
-      this.showNextQuestion();
-    },
-
-    /**
-     * 不正解時のモーダルクローズ
-     */
-    onResultModalClose: function() {
-      this.stopAudio();
-      this.showNextQuestion();
     },
   },
 };
