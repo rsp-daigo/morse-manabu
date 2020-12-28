@@ -246,10 +246,6 @@ export default {
      */
     playAudio: async function(gainList) {
       try {
-        if (oscillator) {
-          oscillator.stop();
-        }
-
         this.aurdioRunnable = true;
 
         const audioCtx = new (window.AudioContext ||
@@ -261,7 +257,6 @@ export default {
         gain.connect(audioCtx.destination);
 
         oscillator.start();
-        // oscillator.stop(playTime / 1000);
         oscillator.connect(gain);
 
         // 指定要求があったら抜ける
