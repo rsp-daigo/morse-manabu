@@ -1,10 +1,6 @@
 <template>
   <div>
-    <div
-      class="el-modal"
-      :aria-hidden="isOpen ? 'false' : 'true'"
-      @click="close"
-    >
+    <div class="el-modal" v-show="isOpen" @click="close">
       <div class="el-modal__holder">
         <h2>不正解</h2>
         <hr />
@@ -32,6 +28,9 @@ export default {
     };
   },
   methods: {
+    /**
+     * モーダルオープン
+     */
     open: function(currentQuestion) {
       console.log(currentQuestion);
       this.morseText = currentQuestion.value.morseText;
@@ -39,6 +38,10 @@ export default {
 
       this.isOpen = true;
     },
+
+    /**
+     * モーダルオープン
+     */
     close: function() {
       this.$emit('onResultModalClose');
       this.isOpen = false;
