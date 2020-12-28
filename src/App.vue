@@ -8,7 +8,6 @@
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
     <br />
-    <br />
 
     <div class="morse_text_box">
       <span>{{ morseText }}</span>
@@ -37,6 +36,10 @@
     <br />
 
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
+    <br />
+    <br />
+    主に３級アマチュア無線で出題されるモールス信号を覚えるためのサイトです。<br />
+    文字で覚えることに加えて、耳も少し鍛えることを目指します！
 
     <result-modal ref="resultModal" @onResultModalClose="onResultModalClose" />
   </div>
@@ -54,9 +57,6 @@ const MORSE_SPEED = 100;
 
 // 長点
 const MORSE_LONG = '－';
-
-// let audioCtx = null;
-// let oscillator = null;
 
 export default {
   components: {
