@@ -110,7 +110,7 @@ export default {
     startStopClick: function() {
       // 開始状態の場合は停止
       if (this.aurdioRunnable) {
-        this.stopAudio();
+        this.stopAudio(() => {});
         this.morseText = '';
         this.opeBtnText = 'Start';
         return;
@@ -143,8 +143,9 @@ export default {
 
       // 正解
       this.$toasted.success('正解');
-      this.stopAudio();
-      this.showNextQuestion();
+      this.stopAudio(() => {
+        this.showNextQuestion();
+      });
     },
 
     /**
@@ -152,8 +153,9 @@ export default {
      */
     onResultModalClose: function() {
       console.log('onResultModalClose');
-      this.stopAudio();
-      this.showNextQuestion();
+      this.stopAudio(() => {
+        this.showNextQuestion();
+      });
     },
 
     /**
@@ -210,9 +212,9 @@ export default {
      */
     playMorseSignal: async function(morseText) {
       // 前回再生中のものが停止されるのを待つ
-      while (this.audioReset) {
-        await sleep(100);
-      }
+      // while (this.audioReset) {
+      //   await sleep(100);
+      // }
 
       // 点と線でばらしてループ
       const ch = Array.from(morseText);
@@ -236,9 +238,6 @@ export default {
       // １セット再生し終えた後のインターバル
       gainList.push({ playTime: 1000, vol: 0 });
       this.playAudio(gainList);
-
-      // 次の再生向けに再生可能状態にしておく
-      // this.audioReset = false;
     },
 
     /**
@@ -264,11 +263,6 @@ export default {
           let totalPlayTime = 0;
           const baseTime = audioCtx.currentTime;
           for (const gainItem of gainList) {
-            // 停止要求がある場合は終了
-            if (this.audioReset) {
-              break;
-            }
-
             gain.gain.setValueAtTime(gainItem.vol, baseTime + totalPlayTime);
 
             totalPlayTime += gainItem.playTime / 1000;
@@ -290,9 +284,17 @@ export default {
     /**
      * オーディオを停止する
      */
-    stopAudio: function() {
+    stopAudio: async function(callback) {
       console.log('stopAudio');
       this.audioReset = true;
+
+      // 停止を待つ
+      while (this.audioReset) {
+        await sleep(100);
+      }
+
+      // 停止後のコールバック呼び出し
+      callback();
     },
   },
 };
