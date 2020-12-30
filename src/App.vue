@@ -211,11 +211,6 @@ export default {
      * 問題を再生する
      */
     playMorseSignal: async function(morseText) {
-      // 前回再生中のものが停止されるのを待つ
-      // while (this.audioReset) {
-      //   await sleep(100);
-      // }
-
       // 点と線でばらしてループ
       const ch = Array.from(morseText);
       const gainList = [];
@@ -237,6 +232,8 @@ export default {
       }
       // １セット再生し終えた後のインターバル
       gainList.push({ playTime: 1000, vol: 0 });
+
+      // 再生実行
       this.playAudio(gainList);
     },
 
