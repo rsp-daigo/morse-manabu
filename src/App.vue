@@ -3,7 +3,7 @@
     <div class="hamon" href="#">
       <span
         class="ring"
-        v-bind:class="{ ring_animation: aurdioRunnable }"
+        v-bind:class="{ ring_animation: this.morsePlayer.isAurdioRunnable() }"
       ></span>
     </div>
     <img src="@/assets/image/title.png" class="title_img" />
@@ -36,6 +36,8 @@
     <br />
 
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
+    <!-- <button @click="testPlayAudio" class="ope_btn">{{ opeBtnText }}</button> -->
+    {{ debug }}
     <br />
     <br />
     主に３級アマチュア無線で出題されるモールス信号を覚えるためのサイトです。<br />
@@ -48,15 +50,7 @@
 <script>
 import morse_list from './components/morse_list';
 import ResultModal from './components/ResultModal';
-
-// Sleepメソッド化
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-// 再生速度（現在は固定）
-const MORSE_SPEED = 100;
-
-// 長点
-const MORSE_LONG = '－';
+import MorsePlayer from './components/morse_player';
 
 export default {
   components: {
@@ -97,9 +91,9 @@ export default {
       numberItems: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       questionList: [],
       currentQuestion: null,
-      aurdioRunnable: false,
-      audioReset: false,
       opeBtnText: 'Start',
+      morsePlayer: new MorsePlayer(),
+      debug: '',
     };
   },
 
@@ -109,7 +103,7 @@ export default {
      */
     startStopClick: function() {
       // 開始状態の場合は停止
-      if (this.aurdioRunnable) {
+      if (this.morsePlayer.isAurdioRunnable()) {
         this.stopAudio(() => {});
         this.morseText = '';
         this.opeBtnText = 'Start';
@@ -126,12 +120,12 @@ export default {
      * 解答クリック
      */
     resultClick: function(anser) {
-      if (!this.aurdioRunnable) {
+      if (!this.morsePlayer.isAurdioRunnable()) {
         return;
       }
 
       // 停止処理中の場合は、クリック無効
-      if (this.audioReset) {
+      if (this.morsePlayer.isAudioReset()) {
         return;
       }
 
@@ -175,7 +169,7 @@ export default {
     showNextQuestion: function() {
       this.currentQuestion = this.getNextQuestion();
       this.showQuestion(this.currentQuestion);
-      this.playMorseSignal(this.currentQuestion.value.morseText);
+      this.morsePlayer.playMorseSignal(this.currentQuestion.value.morseText);
     },
 
     /**
@@ -208,90 +202,11 @@ export default {
     },
 
     /**
-     * 問題を再生する
-     */
-    playMorseSignal: async function(morseText) {
-      // 点と線でばらしてループ
-      const ch = Array.from(morseText);
-      const gainList = [];
-      for (const item of ch) {
-        // 長点は短点の3倍
-        let playTime = 1;
-        if (item === MORSE_LONG) {
-          playTime = 3;
-        }
-
-        // 再生速度の設定
-        playTime *= MORSE_SPEED;
-
-        gainList.push({ playTime, vol: 0.9 });
-
-        // 要素間のインターバル
-        const interval = 1 * MORSE_SPEED;
-        gainList.push({ playTime: interval, vol: 0 });
-      }
-      // １セット再生し終えた後のインターバル
-      gainList.push({ playTime: 1000, vol: 0 });
-
-      // 再生実行
-      this.playAudio(gainList);
-    },
-
-    /**
-     * オーディオを再生する
-     */
-    playAudio: async function(gainList) {
-      try {
-        this.aurdioRunnable = true;
-
-        const audioCtx = new (window.AudioContext ||
-          window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 440;
-        const gain = audioCtx.createGain();
-        gain.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.connect(gain);
-
-        // 指定要求があったら抜ける
-        while (!this.audioReset) {
-          let totalPlayTime = 0;
-          const baseTime = audioCtx.currentTime;
-          for (const gainItem of gainList) {
-            gain.gain.setValueAtTime(gainItem.vol, baseTime + totalPlayTime);
-
-            totalPlayTime += gainItem.playTime / 1000;
-          }
-
-          // 停止要求をチェックするため再生時間分Slepp
-          await sleep(totalPlayTime * 1000);
-        }
-
-        oscillator.stop();
-
-        this.audioReset = false;
-        this.aurdioRunnable = false;
-      } catch (e) {
-        alert(e);
-      }
-    },
-
-    /**
      * オーディオを停止する
      */
     stopAudio: async function(callback) {
       console.log('stopAudio');
-      this.audioReset = true;
-
-      // 停止を待つ
-      while (this.audioReset) {
-        await sleep(100);
-      }
-
-      // 停止後のコールバック呼び出し
-      callback();
+      this.morsePlayer.stop(callback);
     },
   },
 };
