@@ -40,7 +40,7 @@
     {{ debug }}
     <br />
     <br />
-    主に３級アマチュア無線で出題されるモールス信号を覚えるためのサイトです。<br />
+    モールス信号を覚えるためのサイトです。<br />
     文字で覚えることに加えて、耳も少し鍛えることを目指します！
 
     <result-modal ref="resultModal" @onResultModalClose="onResultModalClose" />
