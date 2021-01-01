@@ -99,7 +99,6 @@ export default class MorsePlayer {
     while (this.audioReset) {
       await sleep(100);
     }
-    // this.oscillator.stop();
 
     // 停止後のコールバック呼び出し
     callback();
