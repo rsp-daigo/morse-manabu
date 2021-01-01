@@ -36,8 +36,6 @@
     <br />
 
     <button @click="startStopClick" class="ope_btn">{{ opeBtnText }}</button>
-    <!-- <button @click="testPlayAudio" class="ope_btn">{{ opeBtnText }}</button> -->
-    {{ debug }}
     <br />
     <br />
     モールス信号を覚えるためのサイトです。<br />
@@ -91,9 +89,8 @@ export default {
       numberItems: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       questionList: [],
       currentQuestion: null,
-      opeBtnText: 'Start',
+      opeBtnText: '開始',
       morsePlayer: new MorsePlayer(),
-      debug: '',
     };
   },
 
@@ -106,14 +103,14 @@ export default {
       if (this.morsePlayer.isAurdioRunnable()) {
         this.stopAudio(() => {});
         this.morseText = '';
-        this.opeBtnText = 'Start';
+        this.opeBtnText = '開始';
         return;
       }
 
       // 停止状態の場合は開始
       this.initQuestion();
       this.showNextQuestion();
-      this.opeBtnText = 'Stop';
+      this.opeBtnText = '中断';
     },
 
     /**
@@ -206,6 +203,7 @@ export default {
      */
     stopAudio: async function(callback) {
       console.log('stopAudio');
+      this.morseText = '';
       this.morsePlayer.stop(callback);
     },
   },

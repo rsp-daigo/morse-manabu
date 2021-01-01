@@ -11,13 +11,21 @@ export default class MorsePlayer {
   constructor() {
     this.aurdioRunnable = false;
     this.audioReset = false;
+
     this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.oscillator = null;
   }
 
+  /**
+   * 生成中か返す
+   */
   isAurdioRunnable() {
     return this.aurdioRunnable;
   }
 
+  /**
+   * 中断要求中か返す
+   */
   isAudioReset() {
     return this.audioReset;
   }
@@ -83,6 +91,7 @@ export default class MorsePlayer {
       }
 
       this.oscillator.stop();
+      this.oscillator = null;
 
       this.audioReset = false;
       this.aurdioRunnable = false;
@@ -93,7 +102,14 @@ export default class MorsePlayer {
 
   async stop(callback) {
     console.log('stopAudio');
+
+    // 停止要求を通知
     this.audioReset = true;
+
+    // 音を止める
+    if (this.oscillator != null) {
+      this.oscillator.stop();
+    }
 
     // 停止を待つ
     while (this.audioReset) {
