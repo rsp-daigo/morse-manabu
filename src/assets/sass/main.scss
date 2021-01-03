@@ -2,15 +2,15 @@ body{
 	font-family: sans-serif ;
 }
 
+button {
+  cursor: pointer;
+}
+
 .container_main {
   position: relative;
   text-align: center;
   max-width: 500px;
   margin: auto;
-}
-
-button {
-  cursor: pointer;
 }
 
 .title_img {

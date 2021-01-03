@@ -9,7 +9,7 @@
           <br />
           <img :src="require(`@/assets/image/${morseImg}`)" />
         </div>
-        <div class="morse_image_box">
+        <div>
           <span></span>
         </div>
       </div>
