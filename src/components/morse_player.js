@@ -31,7 +31,7 @@ export default class MorsePlayer {
   }
 
   /**
-   * 問題を再生する
+   * モールス信号を再生する
    */
   async playMorseSignal(morseText) {
     // 点と線でばらしてループ
@@ -54,7 +54,7 @@ export default class MorsePlayer {
       gainList.push({ playTime: interval, vol: 0 });
     }
     // １セット再生し終えた後のインターバル
-    gainList.push({ playTime: 1000, vol: 0 });
+    gainList.push({ playTime: MORSE_SPEED * 3, vol: 0 });
 
     // 再生実行
     await this.playAudio(gainList);
@@ -100,6 +100,10 @@ export default class MorsePlayer {
     }
   }
 
+  /**
+   * 再生の停止を要求する
+   * @param {function} callback コールバック
+   */
   async stop(callback) {
     console.log('stopAudio');
 
