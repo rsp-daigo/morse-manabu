@@ -71,7 +71,7 @@ export default class MorsePlayer {
       this.oscillator.type = 'square';
       this.oscillator.frequency.value = 440;
       const gain = this.audioCtx.createGain();
-      gain.gain.value = 0;
+      // gain.gain.value = 0;
       gain.connect(this.audioCtx.destination);
 
       this.oscillator.connect(gain);
@@ -93,10 +93,7 @@ export default class MorsePlayer {
           //   baseTime + totalPlayTime + 0.001
           // );
 
-          gain.gain.setValueAtTime(
-            gainItem.vol,
-            baseTime + totalPlayTime + 0.001
-          );
+          gain.gain.setValueAtTime(gainItem.vol, baseTime + totalPlayTime);
 
           totalPlayTime += gainItem.playTime / 1000;
 
@@ -130,11 +127,6 @@ export default class MorsePlayer {
 
     // 停止要求を通知
     this.audioReset = true;
-
-    // 音を止める
-    if (this.oscillator != null) {
-      this.oscillator.stop();
-    }
 
     // 停止を待つ
     while (this.audioReset) {
