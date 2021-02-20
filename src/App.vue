@@ -114,20 +114,38 @@ export default {
     },
 
     /**
+     * 個別学習
+     * 選択されたモールスを表示、音声を再生する
+     */
+    learnItem: function(learnItem) {
+      const item = { key: learnItem, value: morse_list[learnItem] };
+      this.showQuestion(item);
+      this.morsePlayer.playMorseSignal(item.value.morseText);
+
+      // 即座に停止要求を行い、１回だけ再生する
+      this.morsePlayer.stop(() => {});
+    },
+
+    /**
      * 解答クリック
      */
-    resultClick: function(anser) {
+    resultClick: function(clickedItem) {
+      // 再生中でない場合は、クリックされたアイテムの情報を表示する
       if (!this.morsePlayer.isAurdioRunnable()) {
+        this.stopAudio(() => {
+          this.learnItem(clickedItem);
+        });
         return;
       }
 
       // 停止処理中の場合は、クリック無効
       if (this.morsePlayer.isAudioReset()) {
+        console.log('AudioReset');
         return;
       }
 
       // はずれ
-      if (anser !== this.currentQuestion.key) {
+      if (clickedItem !== this.currentQuestion.key) {
         this.$refs.resultModal.open(this.currentQuestion);
         return;
       }
